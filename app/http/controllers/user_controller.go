@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"goravel/app/models"
 
 	"github.com/goravel/framework/contracts/http"
@@ -19,7 +18,7 @@ func NewUserController() *UserController {
 }
 
 func (r *UserController) Store(ctx http.Context) http.Response {
-	validator, err := ctx.Request().Validate(map[string]string{
+	validator, _ := ctx.Request().Validate(map[string]string{
 		"name":     "required|max_len:255",
 		"username": "required|max_len:255",
 		"password": "required|max_len:255",
@@ -31,17 +30,15 @@ func (r *UserController) Store(ctx http.Context) http.Response {
 		})
 	}
 
-	fmt.Printf(err.Error())
-
 	name := ctx.Request().Input("name")
 	username := ctx.Request().Input("username")
 	password := ctx.Request().Input("password")
 
 	user := models.User{Name: name, Username: username, Password: password}
-	result := facades.Orm().Query().Create(&user)
+	facades.Orm().Query().Create(&user)
 
-	return ctx.Response().Success().Json(http.Json{
-		"message": result,
+	return ctx.Response().Status(201).Json(http.Json{
+		"message": &user,
 	})
 }
 
